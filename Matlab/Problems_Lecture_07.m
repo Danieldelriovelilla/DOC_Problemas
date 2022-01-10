@@ -1,0 +1,217 @@
+clc
+clear
+close all
+
+%%  EJERCICIO 1
+
+theta = deg2rad(45);
+Cbg = C3(theta);
+
+neg = [-1, 0, 0]'; 
+nsg = [0, 1, 0]';
+
+% SC coordinates
+neb = Cbg*neg;
+nsb = Cbg*nsg;
+
+ub = neb;
+vb = nsb;
+ui = neg;
+vi = nsg;
+
+[Cb, Ci, Cbi] = Triad_Method(neb, nsb, neg, nsg);
+disp(Cbi)
+
+
+
+%% EJERCICIO 2
+
+ub = [0.8273, 0.5541, -0.0920]';
+vb = [-0.8285, 0.5522, -0.0955]';
+
+ui = [-0.1517, -0.9669, 0.2050]';
+vi = [-0.8393, 0.4494, -0.3044]';
+
+[Cb, Ci, Cbi] = Triad_Method(ub, vb, ui, vi);
+disp(Cbi)
+
+
+
+%% EJERCICIO 3
+
+syms t t1(t) t2(t) t3(t)
+ci = deg2rad([80, 30, 40]');
+
+w = [sin(0.1*t), 0, cos(0.1*t)]'*deg2rad(5);
+
+dt = [diff(t1), diff(t2), diff(t3)];
+
+% Obtener thetapunto = A(theta)*w(t)
+syms dt1 dt2 dt3 w1 w2 w3
+
+% Descomposicion de velocidades angulares 
+w21 = dt1*[1, 0, 0]' +...               % Ultimo eje de giro - 1
+    dt2*C1(t1)*[0, 1, 0]' +...          % Segundo eje de giro - 2
+    dt3*C1(t1)*C2(t2)*[0, 0, 1]';       % Tercer eje de giro - 3
+
+eqn = w21 == [w1, w2, w3]';
+
+% Obtener equacion w = A*theta
+vars = [dt1; dt2; dt3];
+[A,b] = equationsToMatrix(eqn,vars);
+invA = inv(A);
+
+% Sustituir ti(t) por y(i) en la ecuacion de abajo y resolver con ode45
+
+[t,theta] = ode45(@kinematics_321,[0 60], ci, odeset('RelTol',1e-4));
+theta = rad2deg(theta);
+figure();
+    plot(t,theta(:,1),t,theta(:,2),t,theta(:,3))
+    box on; grid on
+    title('Solution with ODE45');
+    xlabel('t t');
+    ylabel('Solution y');
+    legend('\theta_1','\theta_2', '\theta_3', "Location","northwest" )
+
+
+%% EJERCICIO 4
+
+ci = deg2rad([80, 30, 40]');
+Ci = C123(ci(1), ci(2), ci(3));
+q0 = Quaternions_from_C(Ci);
+
+[t,q] = ode45(@kinematics_q,[0 60], q0, odeset('RelTol',1e-4));
+figure();
+    plot(t, q(:,1), t, q(:,2), t, q(:,3), t, q(:,4))
+    box on; grid on
+    title('Solution with ODE45');
+    xlabel('t t');
+    ylabel('Solution y');
+    legend('q_1','q_2', 'q_3', 'q_4', "Location","northwest" )
+
+
+%% FUNCTIONS
+
+function dot_theta = kinematics_321(t,y)
+w = [sin(0.1*t), 0, cos(0.1*t)]'*deg2rad(5);
+dot_theta = [1, (sin(y(1))*sin(y(2)))/(cos(y(2))*cos(y(1))^2 + cos(y(2))*sin(y(1))^2), (cos(y(1))*sin(y(2)))/(cos(y(2))*cos(y(1))^2 + cos(y(2))*sin(y(1))^2);
+        0,                                    cos(y(1))/(cos(y(1))^2 + sin(y(1))^2),                                   -sin(y(1))/(cos(y(1))^2 + sin(y(1))^2);
+        0,              sin(y(1))/(cos(y(2))*cos(y(1))^2 + cos(y(2))*sin(y(1))^2),              cos(y(1))/(cos(y(2))*cos(y(1))^2 + cos(y(2))*sin(y(1))^2)]*...
+        w;
+end
+
+function dot_q = kinematics_q(t,q)
+w = [sin(0.1*t); 0.01; cos(0.1*t); 0.0]*deg2rad(50);
+w1 = w(1);
+w2 = w(2);
+w3 = w(3);
+w4 = w(4);
+dot_q = 0.5 * [ 0 w3 -w2 w1 
+ -w3 0 w1 w2 
+ w2 -w1 0 w3 
+ -w1 -w2 -w3 0 ]*q;
+end
+
+
+% Cosine matrix
+function [C] = C_from_to(from, to)
+C = zeros(3);
+for i = 1:size(from, 1)
+    for j = 1:size(to, 1)
+    C(i,j) = dot(from(:,i),to(:,j));
+    end
+end
+disp("C = ")
+disp(C)
+end
+
+function [C] = C1(theta)
+C = [1, 0, 0
+    0, cos(theta), sin(theta);
+    0, -sin(theta), cos(theta)];
+end
+
+function [C] = C2(theta)
+C = [cos(theta), 0, -sin(theta);
+    0, 1, 0
+    sin(theta), 0, cos(theta)];
+end
+
+function [C] = C3(theta)
+C = [cos(theta), sin(theta), 0;
+    -sin(theta), cos(theta), 0;
+    0, 0, 1];
+end
+
+function [C] = C323(t1, t2, t3)
+C = C3(t1)*C2(t2)*C3(t3);
+end
+
+function [C] = C123(t1, t2, t3)
+C = C1(t1)*C2(t2)*C3(t3);
+end
+
+function [theta1] = theta1_321(C)
+theta1 = atan2(C(2,3),C(3,3));
+end
+
+function [theta2] = theta2_321(C)
+theta2 = -asin(C(1,3));
+end
+
+function [theta3] = theta3_321(C)
+theta3 = atan2(C(1,2),C(1,1));
+end
+
+function [C] = C_from_e(phi, e)
+ex = [0, -e(3), e(2);
+      e(3), 0, -e(1);
+      -e(2), e(1), 0];
+C = cos(phi)*eye(3) + (1-cos(phi))*e'*e - sin(phi)*ex;
+end
+
+
+% Eigenaxis
+function [phi, e] = Eigenaxis(C21)
+phi = acos( ( C21(1,1) + C21(2,2) + C21(3,3) - 1)/2 );
+e = [C21(2,3) - C21(3,2);
+     C21(3,1) - C21(1,3);
+     C21(1,2) - C21(2,1)]/(2*sin(phi));
+end
+
+% Quaternions
+function [q] = Quaternions_from_C(C)
+phi = acos( ( C(1,1) + C(2,2) + C(3,3) - 1)/2 );
+e = [C(2,3) - C(3,2);
+     C(3,1) - C(1,3);
+     C(1,2) - C(2,1)]/(2*sin(phi));
+
+q = [e(1)*sin(phi/2);
+     e(2)*sin(phi/2);
+     e(3)*sin(phi/2)];
+q(4) = cos(phi/2);
+end
+
+function [q] = Quaternions_from_e(phi, e)
+q = [e(1)*sin(phi/2);
+     e(2)*sin(phi/2);
+     e(3)*sin(phi/2)];
+q(4) = cos(phi/2);
+end
+
+
+% Attitude determination
+function [Cb, Ci, Cbi] = Triad_Method(ub, vb, ui, vi)
+% Body
+t1b = ub;
+t2b = cross(ub, vb)/norm(cross(ub, vb));
+t3b = cross(t1b, t2b);
+% Inertial
+t1i = ui;
+t2i = cross(ui, vi)/norm(cross(ui, vi));
+t3i = cross(t1i, t2i);
+% Matrix
+Cb = [t1b, t2b, t3b];
+Ci = [t1i, t2i, t3i];
+Cbi = Cb*Ci';
+end
