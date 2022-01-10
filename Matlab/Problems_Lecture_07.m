@@ -61,8 +61,8 @@ vars = [dt1; dt2; dt3];
 [A,b] = equationsToMatrix(eqn,vars);
 invA = inv(A);
 
-% Sustituir ti(t) por y(i) en la ecuacion de abajo y resolver con ode45
-
+% Sustituir t1(t), t2(t), t3(t) por y(1), y(2), y(3): control f -> replazce
+% all
 [t,theta] = ode45(@kinematics_321,[0 60], ci, odeset('RelTol',1e-4));
 theta = rad2deg(theta);
 figure();
@@ -96,8 +96,8 @@ function dot_theta = kinematics_321(t,y)
 w = [sin(0.1*t), 0, cos(0.1*t)]'*deg2rad(5);
 dot_theta = [1, (sin(y(1))*sin(y(2)))/(cos(y(2))*cos(y(1))^2 + cos(y(2))*sin(y(1))^2), (cos(y(1))*sin(y(2)))/(cos(y(2))*cos(y(1))^2 + cos(y(2))*sin(y(1))^2);
         0,                                    cos(y(1))/(cos(y(1))^2 + sin(y(1))^2),                                   -sin(y(1))/(cos(y(1))^2 + sin(y(1))^2);
-        0,              sin(y(1))/(cos(y(2))*cos(y(1))^2 + cos(y(2))*sin(y(1))^2),              cos(y(1))/(cos(y(2))*cos(y(1))^2 + cos(y(2))*sin(y(1))^2)]*...
-        w;
+        0,              sin(y(1))/(cos(y(2))*cos(y(1))^2 + cos(y(2))*sin(y(1))^2),              cos(y(1))/(cos(y(2))*cos(y(1))^2 + cos(y(2))*sin(y(1))^2)]...
+        *w;
 end
 
 function dot_q = kinematics_q(t,q)
