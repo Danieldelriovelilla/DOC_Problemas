@@ -54,7 +54,7 @@ disp("Si es identidad, lo cumple")
 disp(C*C')
 
 
-%% EJERCICIO 2
+%% EJERCICIO 3
 
 % a) Find the Euler rotation matrix C21 in terms of 3-2-3 Euler angles rotation sequence, with angles ϴ1, ϴ2 and ϴ3.
 % Specifically, frame 2 is obtained from frame 1 by:
