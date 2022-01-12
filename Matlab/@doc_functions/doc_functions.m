@@ -43,7 +43,7 @@ classdef doc_functions < handle
     end
     
     function [C] = C123(obj, t1, t2, t3)
-    C = C1(t1)*C2(t2)*C3(t3);
+    C = C1(obj, t1)*C2(obj, t2)*C3(obj, t3);
     end
     
     function [theta1] = theta1_321(obj, C)
@@ -133,6 +133,45 @@ classdef doc_functions < handle
     end
     % disp('C final'); disp(C)
     end
+
+    function [I] = Inertia_Matrix(obj, I1, I2, I3)
+    I = [I1, 0, 0;
+         0, I2, 0;
+         0, 0, I3];   
+    disp("ASEGURATE QUE I1 ES EL MAYOR E I3 EL MENOR")
+    end
+
+    function [I] = Inertia_Cylinder(obj, m, r, h)
+    I1 = m*(3*r^2 + h^2)/12;
+    I2 = I1;
+    I3 = m*r^2;
+    I = Inertia_Matrix(obj, I1, I2, I3);
+    end
+
+    function [eq] = Euler_Equation(obj, I, w, dw, T)
+    eq = I*dw + cross(w, I*w) == T;
+    end
+    
+    function [T] = Kinetic_Energy(obj, I, w)
+    T = w'*I*w;
+    end
+
+    function [h] = Angular_Momentum_Iw(obj, I, w)
+    h = I*w;
+    end
+
+    function [nutation_angle] = Nutation(obj, h)
+    ht = norm(h(1:2));
+    hn = norm(h);
+    nutation_angle = asin(ht/hn);
+    end
+    
+    function [precession_rate] = Precession_Rate(obj, I, h)
+    hn = norm(h);
+    precession_rate = hn/I(1,1);
+    end
+    
+
 
     end
 end

@@ -2,6 +2,9 @@ clc
 clear
 close all
 
+%%
+doc = doc_functions();
+
 %%  EJERCICIO 1
 
 theta = deg2rad(45);
@@ -51,8 +54,8 @@ syms dt1 dt2 dt3 w1 w2 w3
 
 % Descomposicion de velocidades angulares 
 w21 = dt1*[1, 0, 0]' +...               % Ultimo eje de giro - 1
-    dt2*C1(t1)*[0, 1, 0]' +...          % Segundo eje de giro - 2
-    dt3*C1(t1)*C2(t2)*[0, 0, 1]';       % Tercer eje de giro - 3
+    dt2*doc.C1(t1)*[0, 1, 0]' +...          % Segundo eje de giro - 2
+    dt3*doc.C1(t1)*doc.C2(t2)*[0, 0, 1]';       % Tercer eje de giro - 3
 
 eqn = w21 == [w1, w2, w3]';
 
