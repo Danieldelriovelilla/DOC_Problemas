@@ -18,7 +18,7 @@ stab = I(1,1) == I(3,3);
 eq = isolate(stab, h);
 pretty( eq )
 
-disp(" "); disp("%   ---   ---   %"); disp(" ")
+disp(""); disp("%   ---   ---   %"); disp("")
 
 
 %% EJERCICIO 2
@@ -35,10 +35,9 @@ RoG = [0, 0, Ro]';
 % R en ejes cuerpo
 Rob = C*RoG;
 
-Tgg = doc.Gravitational_Torque(mu, Rob, I)
+Tgg = doc.Gravitational_Torque(mu, Rob, I);
 
-
-disp(" "); disp("%   ---   ---   %"); disp(" ")
+disp(""); disp("%   ---   ---   %"); disp("")
 
 
 %% EJERCICIO 3
@@ -56,16 +55,14 @@ cond1 = [...
     (Is(2) - Ispin)*ws;
     (Is(1) - Ispin)*ws;
     ];
-disp("Condicion 1")
 h_cond1 = max(cond1)
 cond2 = [...
     (Is(2) - Ispin)*ws;
     (Is(1) - Ispin)*ws;
     ];
-disp("Condicion 2")
 h_cond2 = min(cond2)
 
-disp(" "); disp("%   ---   ---   %"); disp(" ")
+disp(""); disp("%   ---   ---   %"); disp("")
 
 
 %% EJERCICIO 4
@@ -93,7 +90,7 @@ w = [0, 0, 0]';
 w = sym('w',[3 1]);
 [eq] = expand(doc.Euler_Equation_Stabilized(I, w, dw, T, hs, a));
 
-% Imponer que w es pequeÒo, por lo tanto w1*w2 es 0
+% Imponer que w es peque√±o, por lo tanto w1*w2 es 0
 eq = subs(eq, {w(2)*w(3), w(1)*w(3), w(1)*w(2)}, {0, 0, 0});
 
 % Sustituir w y dw por variables dependientes del tiempo
@@ -106,13 +103,14 @@ eq = subs(eq,...
     {w1, w2, w3, dw1, dw2, dw3});
 
 % Integrar las ecuaciones para obtener la frecuencia de oscilacion
-disp("La fecuencia es el par·metro que multiplica a t dentro de la exponencial ")
+disp("La fecuencia es el par√°metro que multiplica a t dentro de la exponencial ")
 [dw1, dw2, dw3] = dsolve(eq);
 disp("w1"); pretty(dw1)
 disp("w2"); pretty(dw2)
 disp("w3"); pretty(dw3)
 
-disp(" "); disp("%   ---   ---   %"); disp(" ")
+
+
 
 
 

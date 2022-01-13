@@ -1,16 +1,18 @@
 classdef doc_functions < handle
     properties
-
+        mu = 3.986e5;   % km^3/s^2
     end
 
     methods (Access = public)
         function obj = doc_functions()
-          disp('Thanks for using our function module!')
-          disp('Go to https://github.com/Danieldelriovelilla/DOC_Problemas -> DOCUMENTATION to get more information ')
-
+            disp('Thanks for using our function module!')
+            disp('Go to https://github.com/Danieldelriovelilla/DOC_Problemas -> DOCUMENTATION to get more information ')
+            disp(" ")
         end
 
-    %% Cosine matrix
+
+    %% COSINE MATRIX
+
     function [C] = C_from_to(obj, from, to)
     C = zeros(3);
     for i = 1:size(from, 1)
@@ -60,7 +62,9 @@ classdef doc_functions < handle
     theta3 = atan2(C(1,2),C(1,1));
     end
 
-    %% Eigenaxis
+
+    %% EIGENAXIS
+
     function [C] = C_from_e(obj, phi, e)
     ex = [0, -e(3), e(2);
           e(3), 0, -e(1);
@@ -75,7 +79,9 @@ classdef doc_functions < handle
          C21(1,2) - C21(2,1)]/(2*sin(phi));
     end
 
-    %% Quaternions
+
+    %% QUATERNIONS
+
     function [q] = Quaternions_from_C(obj, C)
     phi = acos( ( C(1,1) + C(2,2) + C(3,3) - 1)/2 );
     e = [C(2,3) - C(3,2);
@@ -96,7 +102,8 @@ classdef doc_functions < handle
     end
 
 
-    %% Attitude determination
+    %% ATTITUDE DETERMINATION
+
     function [Cb, Ci, Cbi] = Triad_Method(obj, ub, vb, ui, vi)
     % Body
     t1b = ub;
@@ -146,11 +153,12 @@ classdef doc_functions < handle
     % disp('C final'); disp(C)
     end
 
+
+    %% ATTITUDE DYNAMICS
     function [I] = Inertia_Matrix(obj, I1, I2, I3)
     I = [I1, 0, 0;
          0, I2, 0;
          0, 0, I3];
-    disp("ASEGURATE QUE I1 ES EL MAYOR E I3 EL MENOR")
     end
 
     function [I] = Inertia_Cylinder(obj, m, r, h)
@@ -183,6 +191,24 @@ classdef doc_functions < handle
     precession_rate = hn/I(1,1);
     end
 
+    % Stabilization
+    function [eq] = Euler_Equation_Stabilized(obj, I, w, dw, T, hs, a)
+    eq = I*dw + cross(w, (I*w + hs*a)) == T;
+    for i = 1:3
+        eq(i) = isolate(eq(i), dw(i));
+    end
+    end
+    
+    function [Tgg] = Gravitational_Torque(obj, mu, Rob, I)
+    Tgg = 3*mu*obj.Skew_Sym_Mat(Rob)*I*Rob/norm(Rob)^5;
+    end
+    
+    function [Ax] = Skew_Sym_Mat(obj, x)
+    Ax = ...
+        [0, -x(3), x(2);
+         x(3), 0, -x(1);
+         -x(2), x(1), 0];
+    end
 
 
     end
