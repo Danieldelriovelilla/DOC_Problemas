@@ -170,6 +170,9 @@ classdef doc_functions < handle
 
     function [eq] = Euler_Equation(obj, I, w, dw, T)
     eq = I*dw + cross(w, I*w) == T;
+    for i = 1:3
+        eq(i) = isolate(eq(i), dw(i));
+    end
     end
 
     function [T] = Kinetic_Energy(obj, I, w)

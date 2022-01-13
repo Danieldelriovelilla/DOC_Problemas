@@ -107,10 +107,11 @@ eq = subs(eq,...
 
 % Integrar las ecuaciones para obtener la frecuencia de oscilacion
 disp("La fecuencia es el parámetro que multiplica a t dentro de la exponencial ")
-[dw1, dw2, dw3] = dsolve(eq);
-disp("w1"); pretty(dw1)
-disp("w2"); pretty(dw2)
-disp("w3"); pretty(dw3)
+[w1, w2, w3] = dsolve(eq);
+disp("w1"); pretty(w1)
+disp("w2"); pretty(w2)
+disp("w3"); pretty(w3)
+disp("HAY QUE QUITAR EL i DENTRO DE LA EXPONENCIAL")
 
 disp(" "); disp("%   ---   ---   %"); disp(" ")
 
