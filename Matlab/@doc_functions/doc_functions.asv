@@ -137,11 +137,8 @@ classdef doc_functions < handle
     end
     C = [f1';f2';f3'];
     % Check if CJC' = I
-    if round(C*J*C') == round(I)
-        disp("Rotation matrix is correct.")
-    else
-        disp("Rotation matrix is NOT correct.")
-    end
+    if (C*J*C') == I
+        disp()
     % disp('C final'); disp(C)
     end
 
