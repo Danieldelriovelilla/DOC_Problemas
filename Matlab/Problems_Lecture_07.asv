@@ -13,6 +13,10 @@ Cbg = C3(theta);
 neg = [-1, 0, 0]'; 
 nsg = [0, 1, 0]';
 
+
+neg = [1, 0, 0]'; 
+nsg = [0, 1, ]';
+
 % SC coordinates
 neb = Cbg*neg;
 nsb = Cbg*nsg;

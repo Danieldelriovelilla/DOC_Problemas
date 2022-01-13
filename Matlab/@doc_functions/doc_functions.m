@@ -101,10 +101,21 @@ classdef doc_functions < handle
     q(4) = cos(phi/2);
     end
 
+    function [C] = C_from_quaternion(obj, q)
+    q4 = q(4);
+    q = [q(1);q(2);q(3)];
+    C = (q4^2-q'*q)*eye(3) + 2*(q*q') - 2*q4* Skew_Sym_Mat(obj, q);
+    end
+    
 
     %% ATTITUDE DETERMINATION
 
     function [Cb, Ci, Cbi] = Triad_Method(obj, ub, vb, ui, vi)
+    % Normalize
+    ub = ub/norm(ub);    
+    vb = vb/norm(vb);
+    ui = ui/norm(ui);
+    vi = vi/norm(vi);
     % Body
     t1b = ub;
     t2b = cross(ub, vb)/norm(cross(ub, vb));
@@ -118,6 +129,71 @@ classdef doc_functions < handle
     Ci = [t1i, t2i, t3i];
     Cbi = Cb*Ci';
     end
+    
+    function [q,Cbi] = q_Method(obj,VB,VI,W)
+    
+    % Weights 
+    if ~exist('W','var')
+        W = ones(size(VB,2),1);
+    end
+    
+    % Normalize
+    for k=1:size(VB,2)
+        VB(:,k) = VB(:,k)/norm(VB(:,k));
+        VI(:,k) = VI(:,k)/norm(VI(:,k));
+    end  
+         
+    % K matrix
+    B = zeros(3,3);
+    for k=1:size(VB,2)
+        B = B + W(k) * ( VB(:,k)*VI(:,k).');
+    end        
+    k22 = trace(B);
+    K11 = B + B' - k22 * eye(3);
+    k12 = [(B(2,3) - B(3,2)) ; (B(3,1) - B(1,3)) ; (B(1,2) - B(2,1))];
+    K = cell2mat({K11,k12;k12',k22});
+    
+    % Eigenvalues
+    [V,D] = eig(K);
+    q = V(:,find(diag(D) == max(diag(D))));
+    
+    % Transformation
+    Cbi = C_from_quaternion(obj,q);
+    
+    end
+    
+    function [q,Cbi] = quest_Method(obj,VB,VI,W)
+    
+    % Weights 
+    if ~exist('W','var')
+        W = ones(size(VB,2),1);
+    end
+    
+    % Normalize
+    for k=1:size(VB,2)
+        VB(:,k) = VB(:,k)/norm(VB(:,k));
+        VI(:,k) = VI(:,k)/norm(VI(:,k));
+    end  
+         
+    % K matrix
+    B = zeros(3,3);
+    for k=1:size(VB,2)
+        B = B + W(k) * ( VB(:,k)*VI(:,k).');
+    end        
+    lambda_max = sum(W);
+    S = B + B';
+    k12 = [(B(2,3) - B(3,2)) ; (B(3,1) - B(1,3)) ; (B(1,2) - B(2,1))];
+    k22 = trace(B);
+    
+    p = inv((lambda_max + k22) * eye(3,3) - S) * k12;
+    q = 1/(1+norm(p)^2)^0.5 * [p;1];
+    
+    % Transformation
+    Cbi = C_from_quaternion(obj,q);
+    
+    end
+    
+    %% ATTITUDE DYNAMICS
 
     function [I, C] = Principal_Inertia(obj, J)
     % Obtain eigenvalues and eigenvectors
@@ -154,7 +230,6 @@ classdef doc_functions < handle
     end
 
 
-    %% ATTITUDE DYNAMICS
     function [I] = Inertia_Matrix(obj, I1, I2, I3)
     I = [I1, 0, 0;
          0, I2, 0;
