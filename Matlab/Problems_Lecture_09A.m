@@ -83,7 +83,7 @@ I2 = 2;
 I3 = 1;
 I = doc.Inertia_Matrix(I1, I2, I3);
 T = doc.Kinetic_Energy(I, w);
-h = doc.Angular_Momentum_Iw(I, w);
+h = norm(doc.Angular_Momentum_Iw(I, w));
 
 % Elipsoide en ejes w
 wT = sqrt( 2*T./diag(I) );
