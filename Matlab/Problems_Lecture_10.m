@@ -60,7 +60,7 @@ s = -xi_wn + imag(wd);
 Kp = I*norm(s);
 Kd = 2*xi_wn*I;
 
-disp(['Control law: u = ', num2str(Kp), 'e - ', num2str(Kd), 'de'])
+disp(['Control law: u = ', num2str(Kp), 'e - ', num2str(Kd), 'dy'])
 
 
 
