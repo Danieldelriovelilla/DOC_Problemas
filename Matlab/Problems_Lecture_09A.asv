@@ -70,22 +70,25 @@ disp(" "); disp("%   ---   ---   %"); disp(" ")
 
 
 %% EJERCICIO 3
-%
+% Fantasia
 w = 1*[1.5, 1.5, 1]';
 I1 = 2;
 I2 = 2;
 I3 = 1;
 I = doc.Inertia_Matrix(I1, I2, I3);
-
-% Kinetic energy elipsoid
 T = doc.Kinetic_Energy(I, w);
-ke = w.^2./(2*diag(I));
+h = doc.Angular_Momentum_Iw(I, w);
+
+% Elipsoide en ejes w
+wT = sqrt( 2T./diag(I) );
+wh = h./diag(I);
 
 % Angular momentum elipsoid
-h = doc.Angular_Momentum_Iw(I, w);
+hT = sqrt( 2T.*diag(I) );
+hh = ones(3,1);
+
+
 he = w.^2./(2*h);
-
-
 
 h = figure();
     hold on
@@ -96,64 +99,69 @@ h = figure();
     view(-30, 20)
     grid on; box on; axis equal
 
+
+    
 %% EJERCICIO 4
+disp("EJERCICIO 2")
+% Integrar ecuaciones dinamica - cinematica de actitud
 
 % Variables independientes
-Is = sym('Is',[3 1]);
 th = sym('th',[3 1]);
 dth = sym('dth',[3 1]);
 w = sym('w',[3 1]);
 dw = sym('dw',[3 1]);
 To = sym('To',[3 1]);
+
 % Condiciones iniciales
-t0 = sym('t0',[3 1]);
-w0 = sym('w0',[3 1]);
+th0 = [0, 0, 0]';
+w0 = [0.05, 0.02, -0.02]';
 
 
-% Relation beween angle and angle rate
+% CINEMATICA
+% Transformacion velocidad angular
 w21 = dth(1)*[1, 0, 0]' +...                       % Ultimo eje de giro - 1
     dth(2)*doc.C1(th(1))*[0, 1, 0]' +...              % Segundo eje de giro - 2
     dth(3)*doc.C1(th(1))*doc.C2(th(2))*[0, 0, 1]';       % Tercer eje de giro - 3
+
+% Relacionar A*dw = w
 eq_dth_th = w21 == w;
-% Solve dth = inv(A(th))*w
+
+% Obtener A de la ecuacion anterior e invertirla para tener dw = B*w
 vars = dth;
 [A,b] = equationsToMatrix(eq_dth_th,vars);
-invA = inv(A);
-eq_th_dth = dth == invA*w;
+eq_th_dth = dth == A\w;
 
-% Relation between angular velocity and angular velocity rate -> Euler eq
-I = doc.Inertia_Matrix(Is(1), Is(2), Is(3));
+
+% DINAMICA
+% Inercia
+I = doc.Inertia_Matrix(210, 200, 118);
+
+% Ecuacion de euler
 eq_dw_w = doc.Euler_Equation(I, w, dw, To);
-for i = 1:3
-    eq_dw_w(i) = isolate(eq_dw_w(i), dw(i));
-end
 
-% Subs the data given on the text
-eq_dw_w = subs(eq_dw_w, To, [0;0;0]);
-eq_dw_w = subs(eq_dw_w, Is, [210;200;180]);
 
-% Differential system of equations
-dif_eq = [eq_th_dth;eq_dw_w];
+% SISTEMA DE ECUACIONES DIFERENCIALES (cinematica, dinamica)
+
+% Separar x de dx
+dif_eq = [eq_th_dth; eq_dw_w];
 eq_splitted = children(dif_eq);
 for i = 1:6
     dif_eq(i) = eq_splitted{i}{1,2};
 end
 
-
-clc
+% Copiar este display en la funcion del final
 disp(dif_eq);
-% Initial values
-th0 = [0, 0, 0]';
-w0 = [0.05, 0.02, -0.02]';
 
 % Solve
 [t,response] = ode45(@Compleate_Equation,[0 60], [th0; w0], odeset('RelTol',1e-4));
-
 for i = 1:6
     h = figure();
     plot(t, response(:,i))
 end
     
+disp(" "); disp("%   ---   ---   %"); disp(" ")
+
+
 
 
 %% FUNCTIONS
@@ -167,11 +175,11 @@ w2=x(5);
 w3=x(6);
 
 dot_x = [...
-w1 + (w3*cos(th1)*sin(th2))/(cos(th2)*cos(th1)^2 + cos(th2)*sin(th1)^2) + (w2*sin(th1)*sin(th2))/(cos(th2)*cos(th1)^2 + cos(th2)*sin(th1)^2)
-                                                           (w2*cos(th1))/(cos(th1)^2 + sin(th1)^2) - (w3*sin(th1))/(cos(th1)^2 + sin(th1)^2)
-                       (w3*cos(th1))/(cos(th2)*cos(th1)^2 + cos(th2)*sin(th1)^2) + (w2*sin(th1))/(cos(th2)*cos(th1)^2 + cos(th2)*sin(th1)^2)
-                                                                                                                                (2*w2*w3)/21
-                                                                                                                               -(3*w1*w3)/20
-                                                                                                                                  (w1*w2)/18
-     ];
+(w1*cos(th2)*cos(th1)^2 + w3*sin(th2)*cos(th1) + w1*cos(th2)*sin(th1)^2 + w2*sin(th2)*sin(th1))/(cos(th2)*(cos(th1)^2 + sin(th1)^2))
+                                                                               (w2*cos(th1) - w3*sin(th1))/(cos(th1)^2 + sin(th1)^2)
+                                                                    (w3*cos(th1) + w2*sin(th1))/(cos(th2)*(cos(th1)^2 + sin(th1)^2))
+                                                                                                                        (2*w2*w3)/21
+                                                                                                                       -(3*w1*w3)/20
+                                                                                                                          (w1*w2)/18
+];
 end
