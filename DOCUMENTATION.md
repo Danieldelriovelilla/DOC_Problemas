@@ -112,9 +112,10 @@ Function to get the corresponding quaternion from DCM.
     output q (4x1 array) : quaternion [q1;q2;q3;q4]
 
 ### q =  Quaternions_from_e(phi, e)
-Function to get the corresponding DCM from quaternion.
+Function to get the corresponding quaternion from Euler eigenaxis.
 
-    input C   (3x3 array): rotation matrix
+    input phi (float):     angle rotated around Euler eigenaxis
+    input e   (3x1 array): axis representation components
 
     output q  (4x1 array): quaternion [q1;q2;q3;q4]
 
