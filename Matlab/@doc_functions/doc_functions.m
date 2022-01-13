@@ -10,7 +10,7 @@ classdef doc_functions < handle
 
         end
 
-    % Cosine matrix
+    %% Cosine matrix
     function [C] = C_from_to(obj, from, to)
     C = zeros(3);
     for i = 1:size(from, 1)
@@ -60,6 +60,7 @@ classdef doc_functions < handle
     theta3 = atan2(C(1,2),C(1,1));
     end
 
+    %% Eigenaxis
     function [C] = C_from_e(obj, phi, e)
     ex = [0, -e(3), e(2);
           e(3), 0, -e(1);
@@ -67,8 +68,6 @@ classdef doc_functions < handle
     C = cos(phi)*eye(3) + (1-cos(phi))*e'*e - sin(phi)*ex;
     end
 
-
-    % Eigenaxis
     function [phi, e] = Eigenaxis(obj, C21)
     phi = acos( ( C21(1,1) + C21(2,2) + C21(3,3) - 1)/2 );
     e = [C21(2,3) - C21(3,2);
@@ -76,7 +75,7 @@ classdef doc_functions < handle
          C21(1,2) - C21(2,1)]/(2*sin(phi));
     end
 
-    % Quaternions
+    %% Quaternions
     function [q] = Quaternions_from_C(obj, C)
     phi = acos( ( C(1,1) + C(2,2) + C(3,3) - 1)/2 );
     e = [C(2,3) - C(3,2);
@@ -97,7 +96,7 @@ classdef doc_functions < handle
     end
 
 
-    % Attitude determination
+    %% Attitude determination
     function [Cb, Ci, Cbi] = Triad_Method(obj, ub, vb, ui, vi)
     % Body
     t1b = ub;
@@ -157,7 +156,7 @@ classdef doc_functions < handle
     function [I] = Inertia_Cylinder(obj, m, r, h)
     I1 = m*(3*r^2 + h^2)/12;
     I2 = I1;
-    I3 = m*r^2;
+    I3 = 0.5*m*r^2;
     I = Inertia_Matrix(obj, I1, I2, I3);
     end
 
@@ -166,7 +165,7 @@ classdef doc_functions < handle
     end
 
     function [T] = Kinetic_Energy(obj, I, w)
-    T = w'*I*w;
+    T = 0.5 * w'*I*w;
     end
 
     function [h] = Angular_Momentum_Iw(obj, I, w)
