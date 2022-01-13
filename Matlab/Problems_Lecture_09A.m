@@ -2,7 +2,11 @@ clc
 clear
 close all
 
+
+%%
+
 doc = doc_functions();
+
 
 %%  EJERCICIO 1
 disp("EJERCICIO 1")
@@ -70,7 +74,9 @@ disp(" "); disp("%   ---   ---   %"); disp(" ")
 
 
 %% EJERCICIO 3
-% Fantasia
+disp("EJERCICIO 2")
+% Polhode
+
 w = 1*[1, 1, 1]';
 I1 = 2;
 I2 = 2;
@@ -111,8 +117,7 @@ h = figure();
     grid on; box on; axis equal
     title("Elipsoide en ejes h")
 
-
-
+disp(" "); disp("%   ---   ---   %"); disp(" ")
 
     
 %% EJERCICIO 4
@@ -174,8 +179,6 @@ for i = 1:6
 end
     
 disp(" "); disp("%   ---   ---   %"); disp(" ")
-
-
 
 
 %% FUNCTIONS
