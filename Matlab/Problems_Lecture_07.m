@@ -16,7 +16,7 @@ theta = deg2rad(45);
 Cbg = doc.C3(theta);
 
 % b) Coordenadas Sol Tierra en ejes cuerpo
-neg = [-1, 0, 0]'; 
+neg = [-1, 0, 0]';
 nsg = [0, 1, 0]';
 
 % SC coordinates
@@ -28,12 +28,20 @@ ub = neb;
 vb = nsb;
 ui = neg;
 vi = nsg;
-[Cb, Ci, Cbi] = doc.Triad_Method(neb, nsb, neg, nsg);
+
+[Cb, Ci, Cbi] = doc.Triad_Method(ub, vb, ui, vi);
+disp('TRIAD')
 disp(Cbi)
 
-disp(" "); disp("%   ---   ---   %"); disp(" ")
+[q, Cbi] = doc.q_Method([ub, vb], [ui, vi]);
+disp('q-method')
+disp(Cbi)
 
-    
+[q, Cbi] = doc.quest_Method([ub, vb], [ui, vi]);
+disp('QUEST method')
+disp(Cbi)
+
+
 %% EJERCICIO 2
 disp("EJERCICIO 2")
 % Aplicar Triad
@@ -49,10 +57,10 @@ disp(Cbi)
 
 disp(" "); disp("%   ---   ---   %"); disp(" ")
 
-    
+
 %% EJERCICIO 3
 disp("EJERCICIO 3")
-% Integrar ecuaciones cinematica con condicion inicial w(0) 
+% Integrar ecuaciones cinematica con condicion inicial w(0)
 
 % Variables independientes
 th = sym('th',[3 1]);
@@ -98,7 +106,7 @@ figure();
 
 disp(" "); disp("%   ---   ---   %"); disp(" ")
 
-    
+
 %% EJERCICIO 4
 disp("EJERCICIO 4")
 % La misma mierda que arriba, pero con cuaterniones
@@ -138,8 +146,8 @@ w1 = w(1);
 w2 = w(2);
 w3 = w(3);
 w4 = w(4);
-dot_q = 0.5 * [ 0 w3 -w2 w1 
- -w3 0 w1 w2 
- w2 -w1 0 w3 
+dot_q = 0.5 * [ 0 w3 -w2 w1
+ -w3 0 w1 w2
+ w2 -w1 0 w3
  -w1 -w2 -w3 0 ]*q;
 end
